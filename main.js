@@ -1,9 +1,9 @@
 console.log("JS is running!");
 
 // Three.js imports from unpkg
-import * as THREE from "https://unpkg.com/three@0.164.0/build/three.module.js";
-import { GLTFLoader } from "https://unpkg.com/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "https://unpkg.com/three@0.164.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/controls/OrbitControls.js";
 
 // Supabase import from esm.sh (web-native, no npm)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
