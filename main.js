@@ -36,7 +36,7 @@ function init() {
   );
   camera.position.set(0, 50, 200);
 
-  const light = new THREE.PointLight(0xffffff, 2);
+  const light = new THREE.PointLight(0xffffff, 0.2);
   light.position.set(0, 0, 0);
   scene.add(light);
 
