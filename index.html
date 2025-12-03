@@ -3,8 +3,18 @@
 <html>
     <head>
         <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>The Exogenic Archive</title>
         <link rel="stylesheet" href="styles.css" />
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+                    "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+                }
+            }
+        </script>
     </head>
     <body>
         <canvas id="three-canvas"></canvas>

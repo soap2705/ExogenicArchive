@@ -1,9 +1,9 @@
 console.log("JS is running!");
 
 // Three.js imports from unpkg
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.164.0/build/three.module.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.164.0/examples/jsm/controls/OrbitControls.js";
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // Supabase import from esm.sh (web-native, no npm)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -36,15 +36,15 @@ function init() {
   );
   camera.position.set(0, 50, 200);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.enablePan = false;
-  controls.minDistance = 30;
-  controls.maxDistance = 500;
-
   const light = new THREE.PointLight(0xffffff, 2);
   light.position.set(0, 0, 0);
   scene.add(light);
+
+  // Add OrbitControls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.enablePan = false;
 
   window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
