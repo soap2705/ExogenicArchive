@@ -114,7 +114,7 @@ function startFlyToPlanet(planet) {
   const radius = boundingSphere.radius;
 
   // Distance the camera should sit away from the planet
-  const distance = radius * 3;
+  const distance = radius * 1.25;
 
   // Direction camera should fly along
   const direction = new THREE.Vector3()
