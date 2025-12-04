@@ -104,21 +104,29 @@ function onClickPlanet(event) {
 
 function startFlyToPlanet(planet) {
   isFlyingToPlanet = true;
-
-  // Turn off autorotate while flying
   controls.autoRotate = false;
 
-  // Target world position of planet
-  const target = new THREE.Vector3();
-  planet.getWorldPosition(target);
+  // Get bounding sphere for accurate size and center
+  const boundingSphere = new THREE.Sphere();
+  new THREE.Box3().setFromObject(planet).getBoundingSphere(boundingSphere);
 
-  // Where camera should end up (slightly away from surface)
-  const cameraTarget = target.clone().add(new THREE.Vector3(0, 10, 30));
+  const target = boundingSphere.center.clone();
+  const radius = boundingSphere.radius;
 
-  // Animation params
-  const duration = 60; // frames ~1 second
+  // Distance the camera should sit away from the planet
+  const distance = radius * 3;
+
+  // Direction camera should fly along
+  const direction = new THREE.Vector3()
+    .subVectors(camera.position, target)
+    .normalize();
+
+  // Final camera destination position
+  const cameraTargetPos = target.clone().add(direction.multiplyScalar(distance));
+
+  // Animation parameters
+  const duration = 60;
   let frame = 0;
-
   const startPos = camera.position.clone();
   const startTarget = controls.target.clone();
 
@@ -128,15 +136,13 @@ function startFlyToPlanet(planet) {
     frame++;
     const t = Math.min(frame / duration, 1);
 
-    // smooth interpolation
-    camera.position.lerpVectors(startPos, cameraTarget, t);
+    camera.position.lerpVectors(startPos, cameraTargetPos, t);
     controls.target.lerpVectors(startTarget, target, t);
     controls.update();
 
     if (t < 1) {
       requestAnimationFrame(animateFly);
     } else {
-      // Stop flying once arrived
       isFlyingToPlanet = false;
       console.log("Arrived at planet:", planet.name);
     }
@@ -144,6 +150,7 @@ function startFlyToPlanet(planet) {
 
   animateFly();
 }
+
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
