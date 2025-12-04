@@ -106,27 +106,31 @@ function startFlyToPlanet(planet) {
   isFlyingToPlanet = true;
   controls.autoRotate = false;
 
-  // Get bounding sphere for accurate size and center
+  // Bounding sphere for center + size
   const boundingSphere = new THREE.Sphere();
   new THREE.Box3().setFromObject(planet).getBoundingSphere(boundingSphere);
 
   const target = boundingSphere.center.clone();
   const radius = boundingSphere.radius;
 
-  // Distance the camera should sit away from the planet
-  const distance = radius * 1.25;
+  // Improved distance calculation:
+  const minDistance = radius * 1.3; // closer but still outside the mesh
+  const maxDistance = radius * 2.2; // prevents backing into other planets
 
-  // Direction camera should fly along
+  const distance = THREE.MathUtils.clamp(radius * 1.6, minDistance, maxDistance);
+
+  // Direction to move camera backward from planet
   const direction = new THREE.Vector3()
     .subVectors(camera.position, target)
     .normalize();
 
-  // Final camera destination position
+  // Final camera position
   const cameraTargetPos = target.clone().add(direction.multiplyScalar(distance));
 
-  // Animation parameters
+  // Move smoothly
   const duration = 60;
   let frame = 0;
+
   const startPos = camera.position.clone();
   const startTarget = controls.target.clone();
 
@@ -144,12 +148,12 @@ function startFlyToPlanet(planet) {
       requestAnimationFrame(animateFly);
     } else {
       isFlyingToPlanet = false;
-      console.log("Arrived at planet:", planet.name);
     }
   }
 
   animateFly();
 }
+
 
 
 window.addEventListener("keydown", (event) => {
