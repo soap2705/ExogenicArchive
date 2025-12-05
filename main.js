@@ -66,7 +66,7 @@ scene.add(light2);
 
 // GLTF Loader
 const loader = new GLTFLoader();
-const modelURL = "https://raw.githubusercontent.com/soap2705/ExogenicArchive/main/assets/SolarSystemAtAGlance.glb";
+const modelURL = "https://github.com/soap2705/ExogenicArchive/blob/a071c6c03051b1b1a2f8c1ddf68979f8d63c2e1a/assets/SolarSystemAtAGlanceWeb.fbx";
 
 loader.load(
   modelURL,
