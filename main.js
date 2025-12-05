@@ -2,18 +2,15 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-//setup code
+// load in
 
 const canvas = document.getElementById("three-canvas");
 
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: true
-});
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.8;
+renderer.toneMappingExposure = 1.1; // brighter overall
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000000);
@@ -25,11 +22,11 @@ const camera = new THREE.PerspectiveCamera(
   5000
 );
 
-// Camera starts near the center for intro orbit
+// Camera starts near the center
 camera.position.set(0.001, 0.001, 0.7);
 camera.lookAt(0, 0, 0);
 
-// Controls
+// Orbit controls
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 0, 0);
 controls.enableDamping = true;
@@ -37,27 +34,35 @@ controls.dampingFactor = 0.05;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1.2;
 
+// global standards and setup
 
 let solarSystem = null;
 let isFlyingToPlanet = false;
+
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-const HOME_POSITION = new THREE.Vector3(0, 50, 200);   
+const HOME_POSITION = new THREE.Vector3(0, 50, 200);
 const HOME_TARGET = new THREE.Vector3(0, 0, 0);
 
+//lighting
 
-const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
-light1.position.set(50, 50, 50);
-scene.add(light1);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(60, 80, 40);
+dirLight.castShadow = false;
+scene.add(dirLight);
 
-const light2 = new THREE.AmbientLight(0xffffff, 0.7);
-scene.add(light2);
+const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+scene.add(ambient);
 
-// load glb in
+const hemi = new THREE.HemisphereLight(0xffffff, 0x222233, 0.6);
+scene.add(hemi);
+
+// load glb
 
 const loader = new GLTFLoader();
-const modelURL = "https://raw.githubusercontent.com/soap2705/ExogenicArchive/main/assets/SolarSystemAtAGlance.glb";
+const modelURL =
+  "https://raw.githubusercontent.com/soap2705/ExogenicArchive/main/assets/SolarSystemAtAGlance.glb";
 
 loader.load(
   modelURL,
@@ -71,36 +76,8 @@ loader.load(
   (err) => console.error("GLB failed to load", err)
 );
 
-//fade nonselected planets
-function fadeOtherPlanets(selectedPlanet) {
-  if (!solarSystem) return;
+// handling input
 
-  solarSystem.traverse((child) => {
-    if (child.isMesh) {
-      if (child !== selectedPlanet) {
-        child.material.transparent = true;
-        child.material.opacity = 0.08; 
-      } else {
-        child.material.transparent = true;
-        child.material.opacity = 1.0;
-      }
-    }
-  });
-}
-
-function restorePlanetVisibility() {
-  if (!solarSystem) return;
-
-  solarSystem.traverse((child) => {
-    if (child.isMesh) {
-      child.material.transparent = true;
-      child.material.opacity = 1.0;
-    }
-  });
-}
-
-
-//input handling
 window.addEventListener("pointerdown", (event) => {
   if (!solarSystem) return;
 
@@ -115,35 +92,30 @@ window.addEventListener("pointerdown", (event) => {
     startFlyToPlanet(planet);
   }
 
-  controls.autoRotate = false; 
+  controls.autoRotate = false;
 });
 
-//camera flying to selected planet
+// camera fly to planet
+
 function startFlyToPlanet(planet) {
   isFlyingToPlanet = true;
   controls.autoRotate = false;
 
-  fadeOtherPlanets(planet);
-
-  // Get bounding sphere (planet center + size)
   const boundingSphere = new THREE.Sphere();
   new THREE.Box3().setFromObject(planet).getBoundingSphere(boundingSphere);
 
   const target = boundingSphere.center.clone();
   const radius = boundingSphere.radius;
 
-  // SAFE distance from surface (closer!)
   const distance = radius * 1.2;
 
-  // Direction FROM planet TO camera
   const direction = new THREE.Vector3()
     .subVectors(camera.position, target)
     .normalize();
 
-  // Final position = just outside the planet
   const cameraTargetPos = target.clone().add(direction.multiplyScalar(distance));
 
-  const duration = 45;  // shorter, snappier
+  const duration = 30; 
   let frame = 0;
 
   const startPos = camera.position.clone();
@@ -155,12 +127,10 @@ function startFlyToPlanet(planet) {
     frame++;
     let t = frame / duration;
 
-    // apply easing (easeOutCubic)
-    t = (--t) * t * t + 1;
+    t = 1 - Math.pow(1 - t, 3);
 
     camera.position.lerpVectors(startPos, cameraTargetPos, t);
     controls.target.lerpVectors(startTarget, target, t);
-
     controls.update();
 
     if (t < 1) {
@@ -173,8 +143,8 @@ function startFlyToPlanet(planet) {
   animateFly();
 }
 
+//escape to return home
 
-//esc to return to the idle
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     returnToHome();
@@ -184,7 +154,7 @@ window.addEventListener("keydown", (event) => {
 function returnToHome() {
   isFlyingToPlanet = true;
 
-  const duration = 60;
+  const duration = 45;
   let frame = 0;
 
   const startPos = camera.position.clone();
@@ -192,7 +162,9 @@ function returnToHome() {
 
   function animateReturn() {
     frame++;
-    const t = Math.min(frame / duration, 1);
+    let t = frame / duration;
+
+    t = 1 - Math.pow(1 - t, 3); // easeOutCubic
 
     camera.position.lerpVectors(startPos, HOME_POSITION, t);
     controls.target.lerpVectors(startTarget, HOME_TARGET, t);
@@ -202,13 +174,14 @@ function returnToHome() {
       requestAnimationFrame(animateReturn);
     } else {
       controls.autoRotate = true;
-      restorePlanetVisibility();
       isFlyingToPlanet = false;
     }
   }
 
   animateReturn();
 }
+
+//loop and resize
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
