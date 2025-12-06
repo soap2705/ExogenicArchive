@@ -11,46 +11,40 @@ body {
     display: block;
 }
 
-/* Panels */
 .panel {
     position: absolute;
     background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
     padding: 20px;
+    min-width: 300px;
     border-radius: 10px;
     color: white;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-width: 300px;
 }
 
 .hidden {
     display: none;
 }
 
-/* Journal Panel */
+.close-btn {
+    font-size: 24px;
+    border: none;
+    background: none;
+    color: white;
+    cursor: pointer;
+    float: right;
+}
+
 #journal-panel {
-    top: 30%;
-    transform: translateX(-50%);
     width: 60vw;
     height: 60vh;
     overflow-y: auto;
 }
 
-#journal-entries img {
+.entry img {
     max-width: 100%;
-    border-radius: 8px;
     margin-top: 10px;
-}
-
-#close-journal {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
+    border-radius: 8px;
 }

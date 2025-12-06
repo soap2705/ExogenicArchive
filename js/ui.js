@@ -5,6 +5,7 @@ export function showLoginUI() {
 export function showJournalUI(planetName) {
     const panel = document.getElementById("journal-panel");
     document.getElementById("journal-planet-title").textContent = planetName;
+
     panel.classList.remove("hidden");
 
     document.getElementById("close-journal").onclick = () =>
@@ -13,9 +14,10 @@ export function showJournalUI(planetName) {
 
 export function displayEntries(entries) {
     const container = document.getElementById("journal-entries");
+
     container.innerHTML = entries.map(e => `
         <div class="entry">
-            <h3>${e.title || "(untitled)"}</h3>
+            <h3>${e.title || "(Untitled Entry)"}</h3>
             <p>${e.content || ""}</p>
             ${
                 e.image_urls

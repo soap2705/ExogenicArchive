@@ -1,16 +1,16 @@
 import { initScene, onPlanetClick } from "./js/threeScene.js";
-import { initAuth, isGuestMode, getUser } from "./js/auth.js";
+import { initAuth, getUser } from "./js/auth.js";
 import { loadPlanetEntries } from "./js/database.js";
 import { showLoginUI, showJournalUI } from "./js/ui.js";
 
-// Initialize everything
+// Initialize 3D scene
 initScene();
 
-// UI
+// Initialize UI + Auth
 showLoginUI();
 initAuth();
 
-//onplanetclick function
+// When a planet is clicked:
 onPlanetClick(async (planetName) => {
     const user = await getUser();
     showJournalUI(planetName);

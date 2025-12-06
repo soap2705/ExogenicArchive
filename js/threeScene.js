@@ -21,14 +21,13 @@ export function initScene() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.2;
 
-    // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.5);
     dir.position.set(60, 80, 40);
     scene.add(dir);
 
-    // Load GLB
     new GLTFLoader().load(
         "./assets/SolarSystemAtAGlance.glb",
         (gltf) => {
@@ -56,8 +55,9 @@ function handleClick(event) {
     raycaster.setFromCamera(mouse, camera);
 
     const hits = raycaster.intersectObjects(solarSystem.children, true);
+
     if (hits.length > 0) {
-        planetClickCallback(hits[0].object.name || "Unknown");
+        planetClickCallback(hits[0].object.name);
     }
 }
 

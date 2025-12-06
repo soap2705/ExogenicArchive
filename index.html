@@ -6,7 +6,6 @@
     <title>The Exogenic Archive</title>
     <link rel="stylesheet" href="styles.css" />
 
-    <!-- Three.js Import Map -->
     <script type="importmap">
     {
         "imports": {
@@ -18,23 +17,22 @@
 </head>
 
 <body>
-    <!-- Canvases + UI -->
     <canvas id="three-canvas"></canvas>
 
-    <div id="login-panel" class="panel hidden">
+    <!-- LOGIN -->
+    <div id="login-panel" class="panel">
         <h2>Exogenic Archive</h2>
         <button id="login-btn">Login</button>
         <button id="guest-btn">Continue as Guest</button>
     </div>
 
+    <!-- JOURNAL -->
     <div id="journal-panel" class="panel hidden">
-        <button id="close-journal">×</button>
+        <button id="close-journal" class="close-btn">×</button>
         <h2 id="journal-planet-title"></h2>
         <div id="journal-entries"></div>
-        <button id="add-entry-btn" class="hidden">+ Add Entry</button>
     </div>
 
-    <!-- Load Modules -->
     <script type="module" src="./main.js"></script>
 </body>
 </html>
