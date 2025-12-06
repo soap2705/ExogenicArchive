@@ -6,6 +6,8 @@ let scene, camera, renderer, controls;
 let solarSystem = null;
 let planetClickCallback = () => {};
 
+let isFlyingToPlanet = false;
+
 export function initScene() {
     const canvas = document.getElementById("three-canvas");
 
@@ -40,6 +42,10 @@ export function initScene() {
     window.addEventListener("pointerdown", handleClick);
     window.addEventListener("resize", resize);
 
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") resetCamera();
+    });
+
     animate();
 }
 
@@ -55,11 +61,90 @@ function handleClick(event) {
     raycaster.setFromCamera(mouse, camera);
 
     const hits = raycaster.intersectObjects(solarSystem.children, true);
-
     if (hits.length > 0) {
-        planetClickCallback(hits[0].object.name);
+        const planet = hits[0].object;
+
+        flyToPlanet(planet);   
+        planetClickCallback(planet.name || "Unknown");  
     }
 }
+
+//fly to planet when clicked
+function flyToPlanet(planet) {
+    controls.autoRotate = false;
+    isFlyingToPlanet = true;
+
+    const boundingSphere = new THREE.Sphere();
+    new THREE.Box3().setFromObject(planet).getBoundingSphere(boundingSphere);
+
+    const target = boundingSphere.center.clone();
+    const radius = boundingSphere.radius;
+
+    const distance = radius * 1.3; // nice close framing
+
+    const direction = new THREE.Vector3()
+        .subVectors(camera.position, target)
+        .normalize();
+
+    const finalCameraPos = target.clone().add(direction.multiplyScalar(distance));
+
+    const startPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+
+    let frame = 0;
+    const duration = 35; 
+
+    function animateFly() {
+        if (!isFlyingToPlanet) return;
+
+        frame++;
+        let t = frame / duration;
+        t = 1 - Math.pow(1 - t, 3); 
+
+        camera.position.lerpVectors(startPos, finalCameraPos, t);
+        controls.target.lerpVectors(startTarget, target, t);
+        controls.update();
+
+        if (t < 1) {
+            requestAnimationFrame(animateFly);
+        } else {
+            isFlyingToPlanet = false;
+        }
+    }
+
+    animateFly();
+}
+
+//reset camera once esc is called
+function resetCamera() {
+    controls.autoRotate = true;
+
+    const HOME_POS = new THREE.Vector3(0, 50, 200);
+    const HOME_TARGET = new THREE.Vector3(0, 0, 0);
+
+    const startPos = camera.position.clone();
+    const startTarget = controls.target.clone();
+
+    let frame = 0;
+    const duration = 50;
+
+    function animateHome() {
+        frame++;
+        let t = frame / duration;
+        t = 1 - Math.pow(1 - t, 3);
+
+        camera.position.lerpVectors(startPos, HOME_POS, t);
+        controls.target.lerpVectors(startTarget, HOME_TARGET, t);
+        controls.update();
+
+        if (t < 1) {
+            requestAnimationFrame(animateHome);
+        }
+    }
+
+    animateHome();
+}
+
 
 export function onPlanetClick(callback) {
     planetClickCallback = callback;
