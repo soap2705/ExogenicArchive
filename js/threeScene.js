@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { getPlanetByBlenderName } from "./database.js";
+
 
 let scene, camera, renderer, controls;
 let solarSystem = null;
@@ -49,7 +51,7 @@ export function initScene() {
     animate();
 }
 
-function handleClick(event) {
+async function handleClick(event) {
     if (!solarSystem) return;
 
     const mouse = new THREE.Vector2(
@@ -65,7 +67,10 @@ function handleClick(event) {
         const planet = hits[0].object;
 
         flyToPlanet(planet);   
-        planetClickCallback(planet.name || "Unknown");  
+       const rawName = planet.name;
+       const planetData = await getPlanetByBlenderName(rawName);
+       planetClickCallback(planetData.display_name, planetData);
+
     }
 }
 

@@ -2,6 +2,22 @@ import { supabase } from "../supabaseClient.js";
 import { isGuestMode } from "./auth.js";
 import { displayEntries } from "./ui.js";
 
+export async function getPlanetByBlenderName(blenderName) {
+    const { data, error } = await supabase
+        .from("planets")
+        .select("display_name, description")
+        .eq("blender_name", blenderName)
+        .single();
+
+    if (error || !data) {
+        console.warn("Planet lookup failed:", blenderName);
+        return {
+            display_name: blenderName, // fallback
+            description: ""
+        };
+    }
+
+
 export async function loadPlanetEntries(planetName, user) {
     let query = supabase
         .from("entries")
