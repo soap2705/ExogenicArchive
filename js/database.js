@@ -16,6 +16,7 @@ export async function getPlanetByBlenderName(blenderName) {
             description: ""
         };
     }
+}
 
 
 export async function loadPlanetEntries(planetName, user) {

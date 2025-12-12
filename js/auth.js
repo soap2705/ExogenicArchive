@@ -3,9 +3,13 @@ import { supabase } from "../supabaseClient.js";
 let guest = false;
 
 export function initAuth() {
+    const loginPanel = document.getElementById("login-panel");
+
+    loginPanel.classList.remove("hidden"); // show ONCE at startup
+
     document.getElementById("guest-btn").onclick = () => {
         guest = true;
-        document.getElementById("login-panel").classList.add("hidden");
+        loginPanel.classList.add("hidden");
     };
 
     document.getElementById("login-btn").onclick = async () => {
@@ -18,7 +22,7 @@ export function initAuth() {
             alert(error.message);
         } else {
             guest = false;
-            document.getElementById("login-panel").classList.add("hidden");
+            loginPanel.classList.add("hidden");
         }
     };
 }
