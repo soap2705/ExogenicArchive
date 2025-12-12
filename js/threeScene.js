@@ -31,7 +31,7 @@ export function initScene() {
     scene.add(dir);
 
     new GLTFLoader().load(
-        "./assets/SolarSystemAtAGlance.glb",
+        "./assets/SolarSystemAtAGlanceWebFix.glb",
         (gltf) => {
             solarSystem = gltf.scene;
             solarSystem.scale.set(10, 10, 10);
