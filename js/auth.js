@@ -4,8 +4,7 @@ let guest = false;
 
 export function initAuth() {
     const loginPanel = document.getElementById("login-panel");
-
-    loginPanel.classList.remove("hidden"); // show ONCE at startup
+    loginPanel.classList.remove("hidden"); // show once
 
     document.getElementById("guest-btn").onclick = () => {
         guest = true;
@@ -16,7 +15,10 @@ export function initAuth() {
         const email = prompt("Email:");
         const password = prompt("Password:");
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
 
         if (error) {
             alert(error.message);

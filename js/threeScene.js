@@ -3,11 +3,9 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { getPlanetByBlenderName } from "./database.js";
 
-
 let scene, camera, renderer, controls;
 let solarSystem = null;
 let planetClickCallback = () => {};
-
 let isFlyingToPlanet = false;
 
 export function initScene() {
@@ -43,10 +41,7 @@ export function initScene() {
 
     window.addEventListener("pointerdown", handleClick);
     window.addEventListener("resize", resize);
-
-    window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") resetCamera();
-    });
+    window.addEventListener("keydown", e => e.key === "Escape" && resetCamera());
 
     animate();
 }
@@ -63,72 +58,60 @@ async function handleClick(event) {
     raycaster.setFromCamera(mouse, camera);
 
     const hits = raycaster.intersectObjects(solarSystem.children, true);
-    if (hits.length > 0) {
-        const planet = hits[0].object;
+    if (!hits.length) return;
 
-        flyToPlanet(planet);   
-       const rawName = planet.name;
-       const planetData = await getPlanetByBlenderName(rawName);
-       planetClickCallback(planetData.display_name, planetData);
+    const planet = hits[0].object;
 
-    }
+    flyToPlanet(planet);
+
+    const planetData = await getPlanetByBlenderName(planet.name);
+    planetClickCallback(planetData.display_name);
 }
 
-//fly to planet when clicked
 function flyToPlanet(planet) {
     controls.autoRotate = false;
     isFlyingToPlanet = true;
 
-    const boundingSphere = new THREE.Sphere();
-    new THREE.Box3().setFromObject(planet).getBoundingSphere(boundingSphere);
+    const sphere = new THREE.Sphere();
+    new THREE.Box3().setFromObject(planet).getBoundingSphere(sphere);
 
-    const target = boundingSphere.center.clone();
-    const radius = boundingSphere.radius;
+    const target = sphere.center.clone();
+    const distance = sphere.radius * 1.3;
 
-    const distance = radius * 1.3; // nice close framing
-
-    const direction = new THREE.Vector3()
+    const dir = new THREE.Vector3()
         .subVectors(camera.position, target)
         .normalize();
 
-    const finalCameraPos = target.clone().add(direction.multiplyScalar(distance));
-
+    const finalPos = target.clone().add(dir.multiplyScalar(distance));
     const startPos = camera.position.clone();
     const startTarget = controls.target.clone();
 
     let frame = 0;
-    const duration = 35; 
+    const duration = 35;
 
     function animateFly() {
-        if (!isFlyingToPlanet) return;
-
         frame++;
         let t = frame / duration;
-        t = 1 - Math.pow(1 - t, 3); 
+        t = 1 - Math.pow(1 - t, 3);
 
-        camera.position.lerpVectors(startPos, finalCameraPos, t);
+        camera.position.lerpVectors(startPos, finalPos, t);
         controls.target.lerpVectors(startTarget, target, t);
         controls.update();
 
-        if (t < 1) {
-            requestAnimationFrame(animateFly);
-        } else {
-            isFlyingToPlanet = false;
-        }
+        if (t < 1) requestAnimationFrame(animateFly);
+        else isFlyingToPlanet = false;
     }
 
     animateFly();
 }
 
-//reset camera once esc is called
 function resetCamera() {
     controls.autoRotate = true;
 
-    const HOME_POS = new THREE.Vector3(0, 50, 200);
-    const HOME_TARGET = new THREE.Vector3(0, 0, 0);
-
     const startPos = camera.position.clone();
     const startTarget = controls.target.clone();
+    const HOME_POS = new THREE.Vector3(0, 50, 200);
+    const HOME_TARGET = new THREE.Vector3(0, 0, 0);
 
     let frame = 0;
     const duration = 50;
@@ -142,14 +125,11 @@ function resetCamera() {
         controls.target.lerpVectors(startTarget, HOME_TARGET, t);
         controls.update();
 
-        if (t < 1) {
-            requestAnimationFrame(animateHome);
-        }
+        if (t < 1) requestAnimationFrame(animateHome);
     }
 
     animateHome();
 }
-
 
 export function onPlanetClick(callback) {
     planetClickCallback = callback;

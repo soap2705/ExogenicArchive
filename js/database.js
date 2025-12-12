@@ -2,6 +2,7 @@ import { supabase } from "../supabaseClient.js";
 import { isGuestMode } from "./auth.js";
 import { displayEntries } from "./ui.js";
 
+/* Translate Blender mesh name → display name */
 export async function getPlanetByBlenderName(blenderName) {
     const { data, error } = await supabase
         .from("planets")
@@ -12,13 +13,15 @@ export async function getPlanetByBlenderName(blenderName) {
     if (error || !data) {
         console.warn("Planet lookup failed:", blenderName);
         return {
-            display_name: blenderName, // fallback
+            display_name: blenderName,
             description: ""
         };
     }
+
+    return data; 
 }
 
-
+/* Load journal entries */
 export async function loadPlanetEntries(planetName, user) {
     let query = supabase
         .from("entries")
